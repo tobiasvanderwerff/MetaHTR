@@ -376,7 +376,8 @@ class LitMAMLLearner(LitBaseEpisodic):
             raise ValueError(base_model_arch)
 
         num_clf_weights = (
-            base_model.clf_layer.in_features * base_model.clf_layer.out_features
+            base_model.model.clf_layer.in_features
+            * base_model.model.clf_layer.out_features
         )
 
         # Initialize meta-model.
@@ -390,7 +391,7 @@ class LitMAMLLearner(LitBaseEpisodic):
                 base_model_arch=base_model_arch,
                 **kwargs,
             )
-        elif maml_arch is MainModelArch.METAHTR:
+        elif maml_arch is MainModelArch.MetaHTR:
             model = LitMetaHTR.load_from_checkpoint(
                 checkpoint_path,
                 strict=False,
@@ -448,7 +449,6 @@ class LitMetaHTR(LitMAMLLearner):
     ):
         super().__init__(**kwargs, save_hparams=False)
 
-        self.base_model = base_model
         self.num_clf_weights = num_clf_weights
         self.inst_mlp_hidden_size = inst_mlp_hidden_size
         self.initial_inner_lr = initial_inner_lr

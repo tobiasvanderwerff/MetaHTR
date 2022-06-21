@@ -275,8 +275,6 @@ class LogModelPredictions(Callback):
         label_encoder: LabelEncoder,
         val_batch: Optional[Tuple[Tensor, Tensor, Tensor, Tensor, str]] = None,
         train_batch: Optional[Tuple[Tensor, Tensor, Tensor, Tensor, str]] = None,
-        # val_batch: Optional[Tuple[Tensor, ...]] = None,
-        # train_batch: Optional[Tuple[Tensor, ...]] = None,
         data_format: str = "word",
         predict_on_train_start: bool = False,
     ):

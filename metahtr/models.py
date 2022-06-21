@@ -106,7 +106,6 @@ class MAMLHTR(nn.Module, MAMLInterface):
 
         assert num_inner_steps >= 1
 
-        self.base_model = base_model
         self.val_writerid_to_splits = val_writerid_to_splits
         self.test_writerid_to_splits = test_writerid_to_splits
         self.l2l_transform = l2l_transform
@@ -328,9 +327,6 @@ class MetaHTR(MAMLHTR):
 
     def __init__(
         self,
-        # base_model: nn.Module,
-        # val_writerid_to_splits: Dict[int, List[List[int]]],
-        # test_writerid_to_splits: Dict[int, List[List[int]]],
         num_clf_weights: int,
         inst_mlp_hidden_size: int = 8,
         initial_inner_lr: float = 0.001,
@@ -355,9 +351,6 @@ class MetaHTR(MAMLHTR):
                 used in addition to MAML
         """
 
-        # self.base_model = base_model
-        # self.val_writerid_to_splits = val_writerid_to_splits
-        # self.test_writerid_to_splits = test_writerid_to_splits
         self.num_clf_weights = num_clf_weights
         self.inst_mlp_hidden_size = inst_mlp_hidden_size
         self.initial_inner_lr = initial_inner_lr

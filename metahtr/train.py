@@ -34,7 +34,7 @@ from pytorch_lightning.plugins import DDPPlugin
 
 def main(args: argparse.Namespace):
 
-    print(f"Main model used: {str(args.main_model_arch)}")
+    print(f"Main model used: {str(args.main_model_arch).upper()}")
     print(f"Base model used: {str(args.base_model_arch).upper()}")
 
     if args.base_model_arch == "sar":
@@ -47,10 +47,14 @@ def main(args: argparse.Namespace):
     # Initalize logging/cache directories.
     log_dir = args.log_dir
     if log_dir is None:
-        log_dir = Path(__file__).parent.resolve()
+        log_dir = Path(__file__).parent.parent.resolve() / "lightning_logs"
     tb_logger = get_pl_tb_logger(log_dir, args.experiment_name)
     log_dir = tb_logger.log_dir
-    cache_dir = Path(args.cache_dir) if args.cache_dir else log_dir / "cache"
+    cache_dir = (
+        Path(args.cache_dir)
+        if args.cache_dir
+        else Path(log_dir).parent.parent.parent / "cache"
+    )
     cache_dir.mkdir(exist_ok=True, parents=True)
     label_enc = get_label_encoder(args.trained_model_path)
     save_label_encoder(label_enc, log_dir)
@@ -74,12 +78,12 @@ def main(args: argparse.Namespace):
 
     # Get Aachen splits.
     ds_train, ds_val, ds_test = prepare_iam_splits(
-        ds, Path(__file__).resolve().parent.parent / "aachen_splits"
+        ds, Path(__file__).resolve().parent.parent / "htr/aachen_splits"
     )
 
     # Exclude writers from the dataset that do not have sufficiently many samples for
     # meta-learning.
-    ds_train.data = filter_df_by_freq(ds_train.data, "writer_id", args.shots)
+    ds_train.data = filter_df_by_freq(ds_train.data, "writer_id", args.shots * 2)
     ds_val.data = filter_df_by_freq(ds_val.data, "writer_id", args.shots * 2)
     ds_test.data = filter_df_by_freq(ds_test.data, "writer_id", args.shots * 2)
 
@@ -98,9 +102,9 @@ def main(args: argparse.Namespace):
     shots, ways = args.shots, args.ways
     taskset_train = prepare_train_taskset(
         dataset=ds_train,
-        ways=1,
+        ways=ways,
         bookkeeping_path=cache_dir / f"train_l2l_bookkeeping_shots={shots}.pkl",
-        shots=shots,
+        shots=shots * 2,
     )
     taskset_val = prepare_test_taskset(ds_val)
     taskset_test = prepare_test_taskset(ds_test)

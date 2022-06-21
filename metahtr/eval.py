@@ -5,15 +5,12 @@ from pathlib import Path
 
 from pytorch_lightning.core.saving import load_hparams_from_yaml
 
-from thesis.lit_models import LitBaseEpisodic
-from thesis.util import (
+from metahtr.util import (
     filter_df_by_freq,
     get_label_encoder,
     get_pl_tb_logger,
     prepare_iam_splits,
-    prepare_train_taskset,
     main_lit_models,
-    get_parameter_names,
     prepare_test_taskset,
 )
 
@@ -39,17 +36,20 @@ def main(args):
     # Initalize logging/cache directories.
     log_dir = args.log_dir
     if log_dir is None:
-        log_dir = Path(__file__).parent.resolve()
+        log_dir = Path(__file__).parent.parent.resolve() / "lightning_logs"
     tb_logger = get_pl_tb_logger(log_dir, args.experiment_name)
     log_dir = tb_logger.log_dir
-    cache_dir = Path(args.cache_dir) if args.cache_dir else log_dir / "cache"
+    cache_dir = (
+        Path(args.cache_dir)
+        if args.cache_dir
+        else Path(log_dir).parent.parent.parent / "cache"
+    )
     cache_dir.mkdir(exist_ok=True, parents=True)
 
     label_enc = get_label_encoder(args.trained_model_path)
-    base_model_params = get_parameter_names(args.trained_model_path)
 
     ds = IAMDataset(
-        args.data_dir,
+        args.iam_dir,
         "word",
         "train",
         label_enc=label_enc,
@@ -59,7 +59,7 @@ def main(args):
     )
 
     _, ds_val, ds_test = prepare_iam_splits(
-        ds, Path(__file__).resolve().parent.parent / "aachen_splits"
+        ds, Path(__file__).resolve().parent.parent / "htr/aachen_splits"
     )
 
     # Exclude writers from the dataset that do not have sufficiently many samples.
@@ -103,13 +103,6 @@ def main(args):
         ModelSummary(max_depth=3),
         LitProgressBar(),
     ]
-    # callbacks = learner.add_model_specific_callbacks(
-    #     callbacks,
-    #     shots=shots,
-    #     ways=ways,
-    #     label_encoder=ds_val.label_enc,
-    #     is_train=False,
-    # )
 
     trainer = Trainer.from_argparse_args(
         args,
@@ -130,11 +123,12 @@ if __name__ == "__main__":
     # fmt: off
     parser = argparse.ArgumentParser()
 
-    parser.add_argument("--trained_model_path", type=str, required=True,
-                        help=("Path to a base model checkpoint"))
-    parser.add_argument("--data_dir", type=str, required=True, help="IAM dataset root folder.")
-    parser.add_argument("--cache_dir", type=str, required=True)
-    parser.add_argument("--log_dir", type=str, required=True,
+    parser.add_argument("--trained_model_path", type=str, required=True, metavar="PATH",
+                        help="Path to a base model checkpoint")
+    parser.add_argument("--iam_dir", type=str, required=True, metavar="PATH",
+                        help="IAM dataset root folder.")
+    parser.add_argument("--cache_dir", type=str, metavar="PATH")
+    parser.add_argument("--log_dir", type=str, metavar="PATH",
                         help="Directory where the lighning logs will be stored.")
     parser.add_argument("--test", action="store_true", default=False,
                         help="Use the test set rather than the val set.")

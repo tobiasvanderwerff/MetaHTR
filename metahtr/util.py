@@ -70,8 +70,8 @@ def main_lit_models():
     from metahtr.lit_models import LitMAMLLearner, LitMetaHTR
 
     return {
-        "MAML": LitMAMLLearner,
-        "MetaHTR": LitMetaHTR,
+        "maml": LitMAMLLearner,
+        "metahtr": LitMetaHTR,
     }
 
 
@@ -512,7 +512,14 @@ class MAMLHTRCheckpointIO(TorchCheckpointIO):
                 if new.endswith(old) or new.endswith(".".join(old.split(".")[1:])):
                     new_to_old[new] = old
                     break
-        assert len(new_to_old) == len(self.base_model_params)
+
+        len1 = len(self.base_model_params)
+        len2 = len(new_to_old)
+        assert len1 == len2, (
+            f"Number of base weights not equal to length of new-"
+            f"to-old mapping ({len1} vs. {len2})."
+        )
+
         self.new_to_old = new_to_old
 
     def _correct_base_model_weight_names(self, checkpoint: Dict[str, Any]):
