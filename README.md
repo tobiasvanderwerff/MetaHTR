@@ -95,15 +95,17 @@ python eval.py --trained_model_path /path/to/metahtr/checkpoint \
                --use_cpu
 ```
 
-## Using other base models
-Currently, only the two base models mentioned above are supported. However, MetaHTR
-and MAML in particular can be applied to most architectures without any real
-modifications. In other words, it should be possible to use MetaHTR on your HTR
-model of choice. I may add some code/instructions in the future to make this possible.
-
-
 ## Results
-TODO
+Below you can see performance of MetaHTR on the IAM test set compared to a naive
+finetuning baseline, along with standard deviations. Performance is measured in word
+error rate
+(WER).
+
+|             | FPHTR-18   | SAR-18     | FPHTR-31   |
+|-------------|------------|------------|------------|
+| Baseline    | 20.0 ± 0.2 | 20.6 ± 0.6 | 15.3 ± 0.7 |
+| MetaHTR     | 18.6 ± 0.4 | 18.6 ± 0.5 | 13.5 ± 0.2 |
+
 
 ## Other remarks
 
@@ -120,7 +122,6 @@ loaded in two stages: first, the weights of the base model are loaded, and secon
 weights of the meta-model are loaded (if they exist). Pytorch Lightning will complain
 because the weights that are loaded do not cover all weights in the model.
 
-
 ### Memory usage
 MAML, and MetaHTR in particular, are quite resource-hungry. Therefore, it's possible
 that you will run out of GPU memory. Trying a smaller base model is a potential solution
@@ -128,10 +129,16 @@ for this. Another way to reduce memory is by disabling the character
 instance-specific weights, which can be done by omitting the
 `--use_instance_weights` flag passed to `train.py`.
 
+### Using other base models
+Currently, only the two base models mentioned above are supported. However, MetaHTR
+and MAML in particular can be applied to most architectures without any real
+modifications. In other words, it should be possible to use MetaHTR on your HTR
+model of choice. I may add some code/instructions in the future to make this possible.
+
+
+
 ## TODO
-- Add more info on using other base models
-- Decide on finetuning model
-- Add results
+- Make it possible to use different base models
 
 
 ## References
