@@ -1,0 +1,3 @@
+[submodule "htr"]
+	path = htr
+	url = https://github.com/tobiasvanderwerff/htr.git
