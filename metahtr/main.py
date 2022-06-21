@@ -4,7 +4,6 @@ from pathlib import Path
 from metahtr.lit_models import (
     LitMAMLLearner,
     LitBaseEpisodic,
-    LitFewShotFinetuningModel,
     LitMetaHTR,
 )
 from metahtr.util import (
@@ -228,7 +227,6 @@ if __name__ == "__main__":
     parser = LitBaseEpisodic.add_model_specific_args(parser)
     parser = LitMAMLLearner.add_model_specific_args(parser)
     parser = LitMetaHTR.add_model_specific_args(parser)
-    parser = LitFewShotFinetuningModel.add_model_specific_args(parser)
     parser = Trainer.add_argparse_args(parser)  # adds Pytorch Lightning arguments
 
     args = parser.parse_args()

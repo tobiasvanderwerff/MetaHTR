@@ -68,12 +68,10 @@ class MainModelArch(ExtendedEnum):
 
 def main_lit_models():
     from metahtr.lit_models import LitMAMLLearner, LitMetaHTR
-    from metahtr.lit_models import LitFewShotFinetuningModel
 
     return {
         "MAML": LitMAMLLearner,
         "MetaHTR": LitMetaHTR,
-        "FewShotFinetuningModel": LitFewShotFinetuningModel,
     }
 
 
